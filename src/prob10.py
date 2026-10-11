@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, defaultdict
 
 def prob10_1() -> int:
     total = 0
@@ -44,45 +44,34 @@ def prob10_1() -> int:
 
 def prob10_2() -> int:
     total = 0
-    def dfs(button_index, current_counters, presses):
-        nonlocal best
-        if presses >= best:
-            return
-        
-        if button_index == len(parsed_schematics):
-            if current_counters == target_counters:
-                best = min(best, presses)
-            return
 
-        state = (button_index, current_counters)
-        if state in memo and memo[state] <= presses:
-            return
+    def min_presses(b: tuple) -> float:
+        if all(x == 0 for x in b):
+            return 0
 
-        schematic = parsed_schematics[button_index]
-        max_presses = min(
-            target_counters[idx] - current_counters[idx]
-            for idx in schematic
-        )
+        if b in dp:
+            return dp[b]
 
-        memo[state] = presses
-        
-        for k in range(max_presses + 1):
-            new_counters = list(current_counters)
-            for idx in schematic:
-                new_counters[idx] += k            
-            new_counters = tuple(new_counters)
+        b_parity = tuple(x % 2 for x in b)
+        best = float('inf')
 
-            dfs(button_index + 1, new_counters, presses + k)
-            
+        for effect, cost in by_parity.get(b_parity, {}).items():
+            if any(b[i] < effect[i] for i in range(n)):
+                continue
+
+            next_b = tuple((b[i] - effect[i]) // 2 for i in range(n))
+            best = min(best, cost + 2 * min_presses(next_b))
+
+        dp[b] = best
+        return best
+
     with open('./input/prob10.txt') as f:
         for line in f:
             parts = line.split()
             
-            target = parts[0]
             schematics = parts[1:-1]
             joltage = parts[-1]
 
-            target = target.strip("[]")
             parsed_schematics = []
             for schematic in schematics:
                 schematic = schematic.strip("()")
@@ -91,12 +80,24 @@ def prob10_2() -> int:
 
             joltage = joltage.strip("{}")
             target_counters = tuple(map(int, joltage.split(",")))
+            n, m = len(target_counters), len(parsed_schematics)
+            by_parity = defaultdict(dict)
 
-            start = tuple(0 for _ in target_counters)
-            best = float('inf')
-            memo = {}
-            dfs(0, start, 0)
+            for mask in range(1 << m):
+                effect = [0] * n
+                for j in range(m):
+                    if (mask >> j) & 1:
+                        for idx in parsed_schematics[j]:
+                            effect[idx] += 1
 
-            total += best
-        
+                effect = tuple(effect)
+                parity = tuple(x % 2 for x in effect)
+                cost = mask.bit_count()
+                if cost < by_parity[parity].get(effect, float('inf')):
+                    by_parity[parity][effect] = cost
+
+            dp = {}
+            total += min_presses(target_counters)
+
     return int(total)
+
