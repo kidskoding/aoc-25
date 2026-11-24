@@ -33,11 +33,11 @@ from src.prob11 import prob11_1, prob11_2
 # print(f'Problem 8 Part 1: {prob08_1()}')
 # print(f'Problem 8 Part 2: {prob08_2()}')
 
-# print(f'Problem 9 Part 1: {prob09_1()}')
-# print(f'Problem 9 Part 2: {prob09_2()}\n')
+print(f'Problem 9 Part 1: {prob09_1()}')
+print(f'Problem 9 Part 2: {prob09_2()}\n')
 
-print(f'Problem 10 Part 1: {prob10_1()}')
-print(f'Problem 10 Part 2: {prob10_2()}\n')
+# print(f'Problem 10 Part 1: {prob10_1()}')
+# print(f'Problem 10 Part 2: {prob10_2()}\n')
 
 # print(f'Problem 11 Part 1: {prob11_1()}')
 # print(f'Problem 11 Part 2: {prob11_2()}\n')

@@ -1,6 +1,7 @@
+from collections import deque
+
 def prob09_1() -> int:
     max_area = 0
-    area = 0
     coords = []
     with open('./input/prob09.txt') as f:
         lines = f.readlines()
@@ -22,8 +23,9 @@ def prob09_1() -> int:
     return max_area
 
 def prob09_2() -> int:
+    max_area = 0
     coords = []
-    with open('./input/prob09.txt') as f:
+    with open('./input/prob09_sample.txt') as f:
         lines = f.readlines()
         for line in lines:
             coord_str = line.strip()
@@ -32,7 +34,6 @@ def prob09_2() -> int:
 
             coords.append(coord)
 
-    grid = []
     set_x, set_y = set(), set()
     for x, y in coords:
         set_x.add(x)
@@ -41,4 +42,37 @@ def prob09_2() -> int:
         set_y.add(y)
         set_y.add(y + 1)
 
-    # come back to this later
+    lst_x = sorted(set_x)
+    lst_y = sorted(set_y)
+
+    x_to_idx = {x: i + 1 for i, x in enumerate(lst_x)}
+    y_to_idx = {y: i + 1 for i, y in enumerate(lst_y)}
+    
+    grid = [[0] * (len(lst_x) + 2) for _ in range(len(lst_y) + 2)]
+    for i in range(len(coords)):
+        x1, y1 = coords[i]
+        x2, y2 = coords[(i + 1) % len(coords)]
+
+        c1, r1 = x_to_idx[x1], y_to_idx[y1]
+        c2, r2 = x_to_idx[x2], y_to_idx[y2]
+
+        for c in range(min(c1, c2), max(c1, c2) + 1):
+            grid[r1][c] = 1
+        
+        for r in range(min(r1, r2), max(r1, r2) + 1):
+            grid[r][c1] = 1
+   
+    rows = len(grid)
+    cols = len(grid[0])
+
+    grid[0][0] = 2
+    queue = deque([(0, 0)])
+    DIRECTIONS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    while queue:
+        r, c = queue.popleft()
+        for dr, dc in DIRECTIONS:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 0:
+                grid[nr][nc] = 2
+                queue.append((nr, nc))
+
