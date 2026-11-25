@@ -25,7 +25,7 @@ def prob09_1() -> int:
 def prob09_2() -> int:
     max_area = 0
     coords = []
-    with open('./input/prob09_sample.txt') as f:
+    with open('./input/prob09.txt') as f:
         lines = f.readlines()
         for line in lines:
             coord_str = line.strip()
@@ -76,3 +76,33 @@ def prob09_2() -> int:
                 grid[nr][nc] = 2
                 queue.append((nr, nc))
 
+    for i in range(len(coords)):
+        for j in range(i, len(coords)):
+            first = coords[i]
+            second = coords[j]
+
+            area = (abs(second[0] - first[0]) + 1) * (abs(second[1] - first[1]) + 1)
+            if area <= max_area:
+                continue
+
+            c1 = x_to_idx[first[0]]
+            c2 = x_to_idx[second[0]]
+            r1 = y_to_idx[first[1]]
+            r2 = y_to_idx[second[1]]
+
+            valid = True
+            for r in range(min(r1, r2), max(r1, r2) + 1):
+                for c in range(min(c1, c2), max(c1, c2) + 1):
+                    if grid[r][c] == 2:
+                        valid = False
+                        break
+
+                if not valid:
+                    break
+
+            if not valid:
+                continue
+
+            max_area = area
+
+    return max_area
